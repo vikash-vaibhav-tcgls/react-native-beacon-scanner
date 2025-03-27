@@ -17,6 +17,64 @@ const BeaconScanner = NativeModules.BeaconScanner
       }
     );
 
-export function multiply(a: number, b: number): Promise<number> {
-  return BeaconScanner.multiply(a, b);
+export enum ScanEventType {
+  STARTED = 'started',
+  STOPPED = 'stopped',
+  NO_BLUETOOTH_ENABLED = 'no_bluetooth_enabled',
+  NO_LOCATION_ENABLED = 'no_location_enabled',
+  NO_BLUETOOTH_PERMISSION = 'no_bluetooth_permission',
+  NO_LOCATION_PERMISSION = 'no_location_permission',
+  FOUND_EDDYSTONE = 'found_eddystone',
+}
+
+export enum ScanMode {
+  LOW_POWER = 0,
+  BALANCED = 1,
+  LOW_LATENCY = 2,
+  OPPORTUNISTIC = -1,
+}
+
+export enum PhyMode {
+  LE_1M = 1,
+  LE_2M = 2,
+  LE_CODED = 3,
+  LE_ALL_SUPPORTED = 255,
+}
+
+export enum ServiceUUIDs {
+  EDDY_STONE_UUID = '0000FEAA-0000-1000-8000-00805F9B34FB',
+}
+
+export type BeaconFilters = {
+  serviceUuid?: ServiceUUIDs;
+  deviceName?: string;
+};
+export interface ScanOptions {
+  scanMode?: ScanMode; // Default: LOW_POWER
+  isLegacy?: boolean; // Default: false
+  phy?: PhyMode; // Default: LE_ALL_SUPPORTED
+  filters: Array<BeaconFilters>;
+}
+
+export function startScanning(options: ScanOptions) {
+  return BeaconScanner.startScanning(options);
+}
+
+export function stopScanning() {
+  return BeaconScanner.stopScanning();
+}
+
+export function enableLocation(): Promise<boolean> {
+  return BeaconScanner.enableLocation();
+}
+
+export function enableBluetooth(): Promise<boolean> {
+  return BeaconScanner.enableBluetooth();
+}
+
+export function isBluetoothEnabled(): Promise<boolean> {
+  return BeaconScanner.isBluetoothEnabled();
+}
+export function isLocationEnabled(): Promise<boolean> {
+  return BeaconScanner.isLocationEnabled();
 }
