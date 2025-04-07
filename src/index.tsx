@@ -59,10 +59,10 @@ export type BeaconFilters = {
   deviceName?: string;
 };
 export interface ScanOptions {
-  scanMode?: ScanMode; // Default: LOW_POWER
+  scanMode?: ScanMode; // Default: SCAN_MODE_LOW_LATENCY
   isLegacy?: boolean; // Default: false
   phy?: PhyMode; // Default: LE_ALL_SUPPORTED
-  filters: Array<BeaconFilters>;
+  filters?: Array<BeaconFilters>;
 }
 
 export function startScanning(options: ScanOptions) {
