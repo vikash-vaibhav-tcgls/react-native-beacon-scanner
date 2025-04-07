@@ -27,6 +27,15 @@ export enum ScanEventType {
   FOUND_EDDYSTONE = 'found_eddystone',
 }
 
+export type FoundBeacon = {
+  event: ScanEventType.FOUND_EDDYSTONE;
+  data: {
+    name: string;
+    uuid: string;
+    eddystoneUrls: Array<string>;
+  };
+};
+
 export enum ScanMode {
   LOW_POWER = 0,
   BALANCED = 1,

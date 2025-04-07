@@ -13,8 +13,14 @@ import android.os.Build;
 import android.provider.Settings;
 import android.util.Log;
 import android.location.LocationManager;
+
+import java.util.Arrays;
 import java.util.UUID;
 import android.os.ParcelUuid;
+import com.facebook.react.bridge.Arguments;
+import com.facebook.react.bridge.WritableArray;
+import com.facebook.react.bridge.ReadableArray;
+
 
 
 
@@ -159,7 +165,7 @@ public class Utils {
       int scanMode = scanOptions.getInt("scanMode");
       settingBuilder.setScanMode(scanMode);
     } else {
-      settingBuilder.setScanMode(ScanSettings.SCAN_MODE_LOW_POWER);
+      settingBuilder.setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY);
     }
 
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -179,6 +185,53 @@ public class Utils {
     return settingBuilder.build();
   }
 
+  static List<String> extractEddystoneUrlsFromBluetoothPacket( byte[] rawBytes){
+    List<String> eddystoneUrls = new ArrayList<>();
+    int index = 0;
 
+    while (index < rawBytes.length) {
+      // Length of this AD structure (including 1 byte for type)
+      int length = rawBytes[index++] & 0xFF;
+      if (length == 0) break;
+
+      // AD Type (e.g., 0x16 = Service Data)
+      int type = rawBytes[index++] & 0xFF;
+
+      if (type == 0x16) { // Service Data AD Type
+        // Extract UUID (little-endian)
+        int uuid = (rawBytes[index + 1] & 0xFF) << 8 | (rawBytes[index] & 0xFF);
+        if (uuid == 0xFEAA) {
+          byte[] eddystoneData = Arrays.copyOfRange(rawBytes, index + 2, index + length-1);
+          if (eddystoneData.length > 0 && (eddystoneData[0] & 0xFF) == 0x10) {
+            String url = parseEddyStoneBytes(eddystoneData);
+            eddystoneUrls.add(url);
+          }
+        }
+      }
+      index += length - 1;
+    }
+    return eddystoneUrls;
+  }
+
+
+  static void printByte(byte[] bb){
+    StringBuilder bc = new StringBuilder();
+    for (byte b : bb) {
+      String hex = String.format("%02X", b & 0xFF);
+      bc.append(hex).append(" ");
+    }
+    Log.d(LOG_TAG+"-- printing byte -- ",  bc.toString());
+  }
+
+
+
+
+  static ReadableArray convertListToReadableArray(List<String> eddystoneUrls) {
+    WritableArray writableArray = Arguments.createArray();
+    for (String url : eddystoneUrls) {
+      writableArray.pushString(url);
+    }
+    return writableArray;
+  }
 
 }

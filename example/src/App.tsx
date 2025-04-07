@@ -86,7 +86,7 @@ export default function App() {
             if (event.event === 'found_eddystone')
               return (
                 <Text key={`sdas${index}`} style={styles.greenText}>
-                  found_eddystone: {event.data}
+                  found_eddystone: {JSON.stringify(event.data)}
                 </Text>
               );
 

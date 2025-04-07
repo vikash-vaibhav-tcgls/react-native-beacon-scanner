@@ -34,8 +34,7 @@ public class BeaconScannerImplementation implements ActivityEventListener {
   private final BluetoothAdapter bluetoothAdapter;
   private BluetoothLeScanner bluetoothLeScanner;
   private Promise _promise = null;
-
-  private static Set<String> eddystoneScannedUrls = new HashSet<>();
+  private static Set<String> eddystoneScannedBeacon = new HashSet<>();
 
   BeaconScannerImplementation(ReactApplicationContext reactContext) {
     this.reactContext = reactContext;
@@ -88,7 +87,7 @@ public class BeaconScannerImplementation implements ActivityEventListener {
       return;
     }
     bluetoothLeScanner.stopScan(bluetoothScanCallback);
-    eddystoneScannedUrls.clear();
+    eddystoneScannedBeacon.clear();
     sendEvent(Utils.SCAN_EVENTS.STOPPED.toString(), "Scanning stop");
 
   }
@@ -120,6 +119,12 @@ public class BeaconScannerImplementation implements ActivityEventListener {
           Log.d(LOG_TAG, "No service data found.");
           return;
         }
+        if(eddystoneScannedBeacon.contains(scanRecord.getDeviceName())){
+          return;
+        }
+
+        WritableMap dataToSendTojs = Arguments.createMap();
+        dataToSendTojs.putString("name", scanRecord.getDeviceName());
 
         for (ParcelUuid uuid : serviceData.keySet()) {
           byte[] beaconData = serviceData.get(uuid);
@@ -127,13 +132,17 @@ public class BeaconScannerImplementation implements ActivityEventListener {
             Log.d(LOG_TAG, "Bytes not found");
             return;
           }
+          dataToSendTojs.putString("uuid", uuid.toString());
           int beaconFrameType = beaconData[0] & 0xFF;
           switch (beaconFrameType) {
             case 0x10:
-              String eddystoneUrl = Utils.parseEddyStoneBytes(beaconData);
-              Log.i(LOG_TAG, "eddystoneUrl " + eddystoneUrl);
-              if (eddystoneUrl != null) {
-                emitUniqueUrlEvent(eddystoneUrl);
+              List<String> urls = Utils.extractEddystoneUrlsFromBluetoothPacket(scanRecord.getBytes());
+              if (!urls.isEmpty()) {
+                eddystoneScannedBeacon.add(scanRecord.getDeviceName());
+                dataToSendTojs.putArray("eddystoneUrls", Utils.convertListToReadableArray(urls));
+                sendEvent( Utils.SCAN_EVENTS.FOUND_EDDYSTONE.toString(),dataToSendTojs);
+              } else {
+                Log.d(LOG_TAG, "No valid url found from bytes");
               }
               break;
             default:
@@ -145,16 +154,6 @@ public class BeaconScannerImplementation implements ActivityEventListener {
   };
 
 
-  void emitUniqueUrlEvent(String url) {
-    if (eddystoneScannedUrls.contains(url)) {
-      Log.w(LOG_TAG, "Already emitted for " + url);
-    } else {
-      eddystoneScannedUrls.add(url);
-      sendEvent(Utils.SCAN_EVENTS.FOUND_EDDYSTONE.toString(), url);
-    }
-  }
-
-
   private void sendEvent(String eventName, String message) {
     if (this.reactContext == null) {
       Log.w(LOG_TAG, "Could not found react-context to send events");
@@ -162,6 +161,23 @@ public class BeaconScannerImplementation implements ActivityEventListener {
     }
     WritableMap data = Arguments.createMap();
     data.putString("data", message);
+    data.putString("event", eventName);
+    if (this.reactContext.hasActiveCatalystInstance()) {
+      reactContext
+        .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+        .emit(Utils.BEACON_SUBSCRIBE_EVENT_NAME, data);
+    }
+  }
+
+
+  private void sendEvent(String eventName,
+                         WritableMap dataToSend) {
+    if (this.reactContext == null) {
+      Log.w(LOG_TAG, "Could not found react-context to send events");
+      return;
+    }
+    WritableMap data = Arguments.createMap();
+    data.putMap("data", dataToSend);
     data.putString("event", eventName);
     if (this.reactContext.hasActiveCatalystInstance()) {
       reactContext
