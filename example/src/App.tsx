@@ -4,7 +4,6 @@ import {
   isBluetoothEnabled,
   isLocationEnabled,
   ScanEventType,
-  ServiceUUIDs,
 } from 'react-native-beacon-scanner';
 import {
   Text,
@@ -51,12 +50,6 @@ export default function App() {
       setScanning(true);
       startScanning({
         isLegacy: false,
-        filters: [
-          {
-            serviceUuid: ServiceUUIDs.EDDY_STONE_UUID,
-            deviceName: 'Ethics_8871',
-          },
-        ],
       });
     }
   };
