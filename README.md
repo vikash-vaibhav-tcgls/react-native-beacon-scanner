@@ -35,6 +35,24 @@ Now, delete node_modules folders in library directory
 yarn add /username/your/directory/path-to-cloned-library
 ```
 
+## Some setup
+
+Add these permission to manifest file
+
+```
+  <uses-permission android:name="android.permission.BLUETOOTH" />
+  <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+  <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+  <uses-permission
+    android:name="android.permission.BLUETOOTH_SCAN"
+    tools:remove="android:usesPermissionFlags" />
+  <uses-feature
+    android:name="android.hardware.bluetooth_le"
+    android:required="true" />
+  <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+  <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+```
+
 And done.
 
 ## Usage
