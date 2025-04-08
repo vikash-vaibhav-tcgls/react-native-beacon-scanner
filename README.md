@@ -32,7 +32,7 @@ Now, delete node_modules folders in library directory
 ### Run
 
 ```sh
-yarn add /username/your/directory/to cloned library
+yarn add /username/your/directory/path-to-cloned-library
 ```
 
 And done.
