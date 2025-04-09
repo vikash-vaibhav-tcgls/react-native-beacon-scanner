@@ -107,6 +107,94 @@ import {DeviceEventEmitter} from 'react-native';
   }, []);
 ```
 
+## 📡 Beacon Scanner API
+
+### 📶 Scan Event Types
+
+| Enum                                    | Description                      |
+| --------------------------------------- | -------------------------------- |
+| `ScanEventType.STARTED`                 | Scanning started                 |
+| `ScanEventType.STOPPED`                 | Scanning stopped                 |
+| `ScanEventType.NO_BLUETOOTH_ENABLED`    | Bluetooth is disabled            |
+| `ScanEventType.NO_LOCATION_ENABLED`     | Location is disabled             |
+| `ScanEventType.NO_BLUETOOTH_PERMISSION` | Bluetooth permission not granted |
+| `ScanEventType.NO_LOCATION_PERMISSION`  | Location permission not granted  |
+| `ScanEventType.FOUND_EDDYSTONE`         | Eddystone beacon found           |
+
+---
+
+### ⚙️ Scan Modes (`ScanMode`)
+
+| Enum                     | Description          |
+| ------------------------ | -------------------- |
+| `ScanMode.LOW_POWER`     | Battery-saving mode  |
+| `ScanMode.BALANCED`      | Balanced performance |
+| `ScanMode.LOW_LATENCY`   | Fastest scan rate    |
+| `ScanMode.OPPORTUNISTIC` | Opportunistic mode   |
+
+---
+
+### 📡 PHY Modes (`PhyMode`)
+
+| Enum                       | Description                  |
+| -------------------------- | ---------------------------- |
+| `PhyMode.LE_1M`            | Standard 1M PHY              |
+| `PhyMode.LE_2M`            | Higher-speed 2M PHY          |
+| `PhyMode.LE_CODED`         | Long-range coded PHY         |
+| `PhyMode.LE_ALL_SUPPORTED` | All supported PHYs (default) |
+
+---
+
+### 📘 Service UUIDs
+
+| Enum                           | Description           |
+| ------------------------------ | --------------------- |
+| `ServiceUUIDs.EDDY_STONE_UUID` | Eddystone beacon UUID |
+
+---
+
+### 🔍 Beacon Filters
+
+| Property      | Type            | Description                     |
+| ------------- | --------------- | ------------------------------- |
+| `serviceUuid` | `ServiceUUIDs?` | Filter by specific service UUID |
+| `deviceName`  | `string?`       | Filter by beacon name           |
+
+---
+
+### ⚙️ Scan Options
+
+| Property   | Type              | Default            | Description                          |
+| ---------- | ----------------- | ------------------ | ------------------------------------ |
+| `scanMode` | `ScanMode?`       | `LOW_LATENCY`      | Scan performance mode                |
+| `isLegacy` | `boolean?`        | `false`            | Enable legacy mode for older devices |
+| `phy`      | `PhyMode?`        | `LE_ALL_SUPPORTED` | Bluetooth PHY mode                   |
+| `filters`  | `BeaconFilters[]? | []`                | List of filtering rules              |
+
+---
+
+### 🧠 API Functions
+
+| Function             | Signature                        | Description                             |
+| -------------------- | -------------------------------- | --------------------------------------- |
+| `startScanning`      | `(options: ScanOptions) => void` | Start scanning with given options       |
+| `stopScanning`       | `() => void`                     | Stop active scanning                    |
+| `enableBluetooth`    | `() => Promise<boolean>`         | Prompt to enable Bluetooth              |
+| `enableLocation`     | `() => Promise<boolean>`         | Prompt to enable location               |
+| `isBluetoothEnabled` | `() => Promise<boolean>`         | Check if Bluetooth is currently enabled |
+| `isLocationEnabled`  | `() => Promise<boolean>`         | Check if location is currently enabled  |
+
+---
+
+### 📍 Found Beacon Structure
+
+| Property             | Type            | Description                        |
+| -------------------- | --------------- | ---------------------------------- |
+| `event`              | `ScanEventType` | Event type (`FOUND_EDDYSTONE`)     |
+| `data.name`          | `string`        | Beacon name                        |
+| `data.uuid`          | `string`        | Beacon UUID                        |
+| `data.eddystoneUrls` | `string[]`      | List of Eddystone URLs broadcasted |
+
 ## Contributing
 
 Project contains an example, checkout the example folder you can try feature by running example app.
