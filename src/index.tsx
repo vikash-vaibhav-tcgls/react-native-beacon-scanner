@@ -27,13 +27,10 @@ export enum ScanEventType {
   FOUND_EDDYSTONE = 'found_eddystone',
 }
 
-export type FoundBeacon = {
-  event: ScanEventType.FOUND_EDDYSTONE;
-  data: {
+export type Beacon = {
     name: string;
     uuid: string;
     eddystoneUrls: Array<string>;
-  };
 };
 
 export enum ScanMode {
