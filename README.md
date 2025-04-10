@@ -233,6 +233,15 @@ Make sure app has both bluetooth and gps location permissions and are turned on.
 
 Checkout /example/src/App.tsx file to customize filters, setting as your need
 
+## Troubleshoot
+In case you have metro server running and you are getting metro server error
+#### Run 
+```sh
+# open your terminal and run
+adb reverse tcp:8081 tcp:8081
+```
+
+
 ## License
 
 MIT
